@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MIDI Upload and Note Display</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"/>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #141414;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      color: #ffffff;
+    }
+
+    .container {
+      background-color: #1e1e1e;
+      border-radius: 12px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+      width: 80%;
+      max-width: 1000px; /* Increased from 500px */
+      padding: 40px; /* Increased padding for more spacing */
+      text-align: center;
+    }
+
+    .upload-section {
+      background-color: #2c2c2c;
+      border-radius: 12px;
+      padding: 60px 40px; /* Increased padding for a bigger click area */
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .upload-section:hover {
+      background-color: #333333;
+    }
+
+    .upload-section i {
+      font-size: 60px; /* Increased icon size */
+      color: #01E6FD;
+      margin-bottom: 20px;
+    }
+
+    .upload-section p {
+      color: #b9bbbe;
+      margin: 10px 0;
+    }
+
+    .btn {
+      background-color: #01E6FD;
+      color: #1e1e1e;
+      border: none;
+      padding: 15px 30px; /* Increased padding for a larger button */
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .btn:hover {
+      background-color: #01E6FD;
+    }
+
+    .output-area {
+      background-color: #2c2c2c;
+      padding: 30px; /* Increased padding for a larger output area */
+      border-radius: 12px;
+      margin-top: 30px;
+      text-align: left;
+      height: 400px; /* Increased height for more space */
+      overflow-y: auto;
+      color: #b9bbbe;
+      white-space: pre-wrap;
+    }
+
+    .file-input {
+      display: none;
+    }
+
+    h2 {
+      font-size: 22px; /* Increased font size for better readability */
+      color:hsl(182, 100%, 51%);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="upload-section" id="uploadSection" onclick="document.querySelector('.file-input').click()">
+      <i class="fas fa-cloud-upload-alt"></i>
+      <p>Upload MIDI File</p>
+      <p style="font-size: 14px;">Only .mid format is supported</p>
+      <button class="btn">Upload File</button>
+      <input type="file" class="file-input" accept=".mid" onchange="showNotes()" hidden>
+    </div>
+    
+    <div class="output-area" id="outputArea" style="display: none;">
+      <h2>Converted Musical Notes</h2>
+      <div id="output">
+        <!-- Placeholder for notes after conversion -->
+        Musical notes will appear here after the file is uploaded.
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function showNotes() {
+      const uploadSection = document.getElementById('uploadSection');
+      const outputArea = document.getElementById('outputArea');
+
+      // Hide the upload section and show the output area
+      uploadSection.style.display = 'none';
+      outputArea.style.display = 'block';
+
+      // Example of how to display notes (replace this with actual conversion logic)
+      const output = document.getElementById('output');
+      output.innerText = "A, C#, E, G, B\nA minor chord\n...\n(Musical notes from the uploaded file)";
+    }
+  </script>
+</body>
+</html>

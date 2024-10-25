@@ -1,0 +1,225 @@
+
+
+from google.colab import drive
+drive.mount('/content/drive')
+
+!pip install pretty_midi
+import pretty_midi
+import os
+
+def midi_to_note_sequence(midi_file_path):
+    midi_data = pretty_midi.PrettyMIDI(midi_file_path)
+    notes = []
+
+    for instrument in midi_data.instruments:
+        if not instrument.is_drum:  # Only process melodic instruments
+            for note in instrument.notes:
+                note_name = pretty_midi.note_number_to_name(note.pitch)
+                notes.append(note_name)
+
+    return notes
+
+def extract_notes_from_directory(directory):
+    all_notes = []
+    for file_name in os.listdir(directory):
+        if file_name.endswith('.mid'):
+            file_path = os.path.join(directory, file_name)
+            notes = midi_to_note_sequence(file_path)
+            all_notes.extend(notes)
+    return all_notes
+
+# Ensure the directory exists and the path is correct.
+# Use !ls to verify the directory exists
+!ls "/content/drive/MyDrive/"
+dataset_directory = '/content/drive/MyDrive/MIDI_files' # Changed to a directory that exists
+notes = extract_notes_from_directory(dataset_directory)
+print(f"Extracted {len(notes)} notes.")
+
+!pip install wget pretty_midi
+
+!pip install datasets
+
+!pip install google-cloud-storage
+!pip install pretty_midi
+!pip install zipfile36  # For handling ZIP files
+
+!pip install pretty_midi mido tensorflow scikit-learn
+
+import os
+import pretty_midi
+import numpy as np
+import requests
+from sklearn.preprocessing import LabelEncoder
+from sklearn.model_selection import train_test_split
+
+# Function to download a MIDI file from the Lakh MIDI dataset using the file ID
+def download_midi_file(midi_id):
+    base_url = 'https://github.com/magnuskiro/lakh-midi-data/raw/main/data/'
+    file_url = f"{base_url}{midi_id}.mid"
+    response = requests.get(file_url)
+
+    midi_file_path = f"{midi_id}.mid"
+    with open(midi_file_path, 'wb') as f:
+        f.write(response.content)
+    return midi_file_path
+
+# Example MIDI file ID from Lakh MIDI dataset (you can change this)
+midi_id = '1fa04691b35a6f9cb911728dd2f46cf2'
+midi_file_path = download_midi_file(midi_id)
+
+def midi_to_note_sequence(midi_file_path):
+    midi_data = pretty_midi.PrettyMIDI(midi_file_path)
+    notes = []
+
+    for instrument in midi_data.instruments:
+        if not instrument.is_drum:
+            for note in instrument.notes:
+                # Convert MIDI note number to note names
+                note_name = pretty_midi.note_number_to_name(note.pitch)
+                notes.append(note_name)
+
+    return notes
+
+# Extract notes from the MIDI file
+notes = midi_to_note_sequence(midi_file_path)
+print(notes)
+
+!wget http://hog.ee.columbia.edu/craffel/lmd/lmd_full.tar.gz
+
+# Extract the downloaded tar.gz file
+!tar -xvzf lmd_full.tar.gz
+
+!pip install pretty_midi
+
+import os
+import pretty_midi
+
+# Define the path to the extracted MIDI files
+midi_dir = 'lmd_full'
+
+# Function to convert MIDI file to note names
+def midi_to_notes(midi_file):
+    try:
+        midi_data = pretty_midi.PrettyMIDI(midi_file)
+        note_names = []
+        for instrument in midi_data.instruments:
+            if not instrument.is_drum:  # Exclude drum tracks
+                for note in instrument.notes:
+                    note_name = pretty_midi.note_number_to_name(note.pitch)
+                    note_names.append(note_name)
+        return note_names
+    except Exception as e:
+        print(f"Error processing {midi_file}: {e}")
+        return []
+
+# List MIDI files in the directory (limit to a few for testing)
+midi_files = [os.path.join(root, file)
+              for root, _, files in os.walk(midi_dir)
+              for file in files if file.endswith('.mid')]
+
+# Convert first few MIDI files to notes and print them
+for midi_file in midi_files[:5]:  # Limit to first 5 files
+    print(f"Processing: {midi_file}")
+    notes = midi_to_notes(midi_file)
+    print(notes)
+
+!rm lmd_full.tar.gz
+
+!pip install pretty_midi tensorflow scikit-learn
+
+import os
+import pretty_midi
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelEncoder
+
+# Define the path to the extracted MIDI files
+midi_dir = 'lmd_full'
+
+# Function to convert MIDI file to note features (for simplicity, using only note pitch)
+def midi_to_notes(midi_file):
+    try:
+        midi_data = pretty_midi.PrettyMIDI(midi_file)
+        note_pitches = []
+        for instrument in midi_data.instruments:
+            if not instrument.is_drum:  # Exclude drum tracks
+                for note in instrument.notes:
+                    note_pitches.append(note.pitch)  # Collect note pitch
+        return note_pitches
+    except Exception as e:
+        print(f"Error processing {midi_file}: {e}")
+        return []
+
+# List MIDI files in the directory (limiting to a smaller sample for testing)
+midi_files = [os.path.join(root, file)
+              for root, _, files in os.walk(midi_dir)
+              for file in files if file.endswith('.mid')]
+
+# Extract notes from MIDI files
+all_notes = []
+for midi_file in midi_files[:100]:  # Limiting to 100 files for demo
+    print(f"Processing: {midi_file}")
+    notes = midi_to_notes(midi_file)
+    all_notes.extend(notes)
+
+print(f"Extracted {len(all_notes)} note pitches.")
+
+# Convert MIDI note numbers to note names
+note_names = [pretty_midi.note_number_to_name(pitch) for pitch in all_notes]
+
+# Encode note names as numerical labels
+label_encoder = LabelEncoder()
+note_labels = label_encoder.fit_transform(note_names)
+
+# Prepare feature matrix (X) and target labels (y)
+# For simplicity, using pitches as features (you can add timing info, velocity, etc.)
+X = np.array(all_notes).reshape(-1, 1)
+y = np.array(note_labels)
+
+# Split data into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+print(f"Training samples: {X_train.shape[0]}, Testing samples: {X_test.shape[0]}")
+
+import tensorflow as tf
+from tensorflow.keras import layers, models
+
+# Build a simple neural network model
+model = models.Sequential([
+    layers.InputLayer(input_shape=(1,)),  # Input is the note pitch
+    layers.Dense(256, activation='relu'),
+    layers.Dense(128, activation='relu'),
+    layers.Dense(64, activation='relu'),
+    layers.Dense(32, activation='relu'),
+    layers.Dense(len(label_encoder.classes_), activation='softmax')  # Output: number of unique notes
+])
+
+# Compile the model
+model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
+
+# Train the model
+history = model.fit(X_train, y_train, epochs=10, batch_size=64, validation_split=0.2)
+
+# Evaluate on the test set
+test_loss, test_acc = model.evaluate(X_test, y_test)
+print(f"Test accuracy: {test_acc:.4f}")
+
+# Predict on new MIDI data
+def predict_notes(midi_file):
+    pitches = midi_to_notes(midi_file)
+    if pitches:
+        pitches = np.array(pitches).reshape(-1, 1)
+        predicted_labels = model.predict(pitches)
+        predicted_notes = label_encoder.inverse_transform(np.argmax(predicted_labels, axis=1))
+        return predicted_notes
+    else:
+        return []
+
+# Example prediction
+new_midi_file = midi_files[101]  # Take another MIDI file for prediction
+predicted_notes = predict_notes(new_midi_file)
+print(f"Predicted notes: {predicted_notes}")
+
+# Evaluate the model on the test set
+test_loss, test_acc = model.evaluate(X_test, y_test)
+print(f"Test accuracy: {test_acc:.4f}")
